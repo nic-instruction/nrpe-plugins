@@ -1,1 +1,1 @@
-This is an example file to show branchine
+This is an example file to show branching
