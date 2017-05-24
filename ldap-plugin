@@ -4,7 +4,7 @@ NAGIOS_SERVER=$1
 CLIENT_LDAP_SERVER='ldap-server'
 RUN_LDAP_REPLICATION_CHECK ()
 {
-      master_contextCSN=`ldapsearch -x -D "cn=ldapadm,dc=ldap,dc=local" -w '<PASSWORD>' -H ldaps://${NAGIOS_SERVER}:389 -P 3 -s base -b "dc=ldap,dc=local" contextCS
+      contextCSN=`ldapsearch -x -D "cn=ldapadm,dc=ldap,dc=local" -w '<PASSWORD>' -H ldaps://${NAGIOS_SERVER}:389 -P 3 -s base -b "dc=ldap,dc=local" contextCS
 N | grep contextCSN | awk '{print $NF}' | grep -v contextCSN`
       TEST_RUN=`echo $?`
       if [ $TEST_RUN -eq 0 ]; then
