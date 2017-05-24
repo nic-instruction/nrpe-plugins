@@ -1,0 +1,51 @@
+#!/bin/bash
+VERSION='2*'
+NAGIOS_SERVER=$1
+CLIENT_LDAP_SERVER='ldap-server'
+RUN_LDAP_REPLICATION_CHECK ()
+{
+      master_contextCSN=`ldapsearch -x -D "cn=ldapadm,dc=ldap,dc=local" -w '<PASSWORD>' -H ldaps://${NAGIOS_SERVER}:389 -P 3 -s base -b "dc=ldap,dc=local" contextCS
+N | grep contextCSN | awk '{print $NF}' | grep -v contextCSN`
+      TEST_RUN=`echo $?`
+      if [ $TEST_RUN -eq 0 ]; then
+          client_contextCSN=`ldapsearch -x -D "cn=ldapadm,dc=ldap,dc=local" -w '<PASSWORD>' -H ldaps://${CLIENT_LDAP_SERVER}:389 -P 3 -s base -b "dc=ldap,dc=local" 
+contextCSN | grep contextCSN | awk '{print $NF}' | grep -v contextCSN`
+          if [ $TEST_RUN -eq 0 ]; then
+              DESCRIPTION="${CLIENT_LDAP_SERVER} ${client_contextCSN}"
+              if [[ "${client_contextCSN}" != "${nagios_contextCSN}" ]]; then
+                  RESULTS='failed'
+              else
+                  RESULTS='ok'
+              fi
+              DESCRIPTION="${CLIENT_LDAP_SERVER} ${client_contextCSN}"
+           else
+              RESULTS='unknown'
+              DESCRIPTION="${CLIENT_LDAP_SERVER} unknown"
+           fi
+      else
+          RESULTS='unknown'
+          DESCRIPTION="${CLIENT_LDAP_SERVER} unknown"
+      fi
+ }
+ OUTPUT_RESULTS ()
+ {
+      case "${RESULTS}" in
+         'ok')
+               echo "OK- ${DESCRIPTION} 0"
+               exit 0
+               ;;
+         'warning')
+               echo "WARNING- ${DESCRIPTION} 1"
+               exit 1
+               ;;
+'failed')
+               echo "CRITICAL- ${DESCRIPTION} 2"
+               exit 2
+               ;;
+         'unknown')
+               echo "UNKNOWN- ${DESCRIPTION} 3"
+               exit 3
+               ;;
+       esac
+ }
+                     
